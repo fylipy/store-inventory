@@ -1,181 +1,63 @@
-# Store Inventory API
+# Store Inventory
 
-This project is a Next.js application backed by Prisma and SQLite for managing store inventory data. It exposes RESTful endpoints for products, purchases, sales, stock levels, and summary reports with CSV export support.
-
-## Prerequisites
-
-- Node.js 18+
-- npm 9+
+A Next.js App Router starter for building a store inventory analytics experience. The project ships with TypeScript, Tailwind CSS, React Query, Prisma, Zod, and additional data tooling so you can focus on product work immediately.
 
 ## Getting started
 
-1. Install dependencies:
+1. **Install dependencies**
 
    ```bash
    npm install
    ```
 
-2. Create and migrate the database:
+2. **Copy the example environment file and configure Postgres access**
 
    ```bash
-   npm run db:migrate
+   cp .env.example .env.local
    ```
 
-3. Seed the database with sample data:
+   Update the `DATABASE_URL` with your Postgres credentials. The string should follow the format:
+
+   ```text
+   postgresql://USER:PASSWORD@HOST:PORT/DATABASE
+   ```
+
+3. **Generate the Prisma client (after the `.env.local` file is configured)**
 
    ```bash
-   npm run db:seed
+   npx prisma generate
    ```
 
-4. Start the development server:
+4. **Run the development server**
 
    ```bash
    npm run dev
    ```
 
-## Database schema
+   Open <http://localhost:3000> in your browser to see the app.
 
-The Prisma schema defines `Product`, `Purchase`, and `Sale` models with decimal prices, relational links, and a unique (case-insensitive) product `code`. See [`prisma/schema.prisma`](prisma/schema.prisma) for details.
+## Available scripts
 
-## API endpoints
+- `npm run dev` – Start the development server.
+- `npm run build` – Create an optimized production build.
+- `npm run start` – Run the production build locally.
+- `npm run lint` – Lint the project with ESLint and Next.js rules.
 
-All endpoints live under `/api/*` and accept/return JSON unless noted otherwise.
+## Tech stack
 
-### `GET /api/products`
+- [Next.js](https://nextjs.org/) App Router with TypeScript
+- [Tailwind CSS](https://tailwindcss.com/) for styling with the `tailwindcss-animate` plugin enabled
+- [@tanstack/react-query](https://tanstack.com/query/latest) for data fetching and caching
+- [Prisma](https://www.prisma.io/) ORM with PostgreSQL connectivity via `DATABASE_URL`
+- [Zod](https://zod.dev/) for schema validation
+- [Recharts](https://recharts.org/), [date-fns](https://date-fns.org/), and [Papa Parse](https://www.papaparse.com/) for analytics tooling
+- [clsx](https://github.com/lukeed/clsx) utility and [react-hot-toast](https://react-hot-toast.com/) notifications
 
-List all products. Optional query params:
+## Project structure
 
-- `id`: Fetch a single product by numeric ID.
-- `code`: Fetch a single product by product code (case-insensitive).
-
-### `POST /api/products`
-
-Create a product.
-
-```json
-{
-  "code": "pen-blk",
-  "name": "Black Ballpoint Pen",
-  "description": "Smooth writing pen",
-  "price": 1.5
-}
+```
+app/            # App Router entry points and providers
+public/         # Static assets
 ```
 
-### `PATCH /api/products`
-
-Update an existing product by ID. Send any subset of writable fields plus the `id`.
-
-### `DELETE /api/products?id=123`
-
-Deletes a product that has no related purchases or sales. Returns `409` if movements exist.
-
----
-
-### `GET /api/purchases`
-
-List purchases. Optional query params:
-
-- `productId`: Filter by product ID.
-- `from` / `to`: ISO date filters for the purchase date.
-
-### `POST /api/purchases`
-
-Create a purchase.
-
-```json
-{
-  "productId": 1,
-  "quantity": 20,
-  "unitCost": 0.65,
-  "purchasedAt": "2024-04-01T00:00:00.000Z"
-}
-```
-
-### `PATCH /api/purchases`
-
-Update a purchase by `id`. You may change the product, quantity, unit cost, or timestamp.
-
-### `DELETE /api/purchases?id=45`
-
-Delete a purchase by ID.
-
----
-
-### `GET /api/sales`
-
-List sales with optional `productId`, `from`, and `to` query params.
-
-### `POST /api/sales`
-
-Create a sale. Stock availability is enforced prior to insertion and the request fails with `409` when inventory is insufficient.
-
-```json
-{
-  "productId": 1,
-  "quantity": 5,
-  "unitPrice": 1.35,
-  "soldAt": "2024-04-04T00:00:00.000Z"
-}
-```
-
-### `PATCH /api/sales`
-
-Update a sale by `id`. Stock checks are re-run when changing product or quantity.
-
-### `DELETE /api/sales?id=12`
-
-Delete a sale by ID.
-
----
-
-### `GET /api/stock`
-
-Returns current on-hand stock per product, along with quantity purchased, sold, and the product price.
-
-### `GET /api/reports`
-
-Returns a sales/purchases summary report per product. Query params:
-
-- `start` / `end`: Optional ISO date range.
-- `format`: `json` (default) or `csv`. When `csv`, the response is a downloadable file.
-
-Example response (`format=json`):
-
-```json
-[
-  {
-    "productId": 1,
-    "code": "pen-blk",
-    "name": "Black Ballpoint Pen",
-    "price": 1.5,
-    "totalPurchased": 180,
-    "totalPurchaseValue": 112.5,
-    "totalSold": 95,
-    "totalSalesValue": 128.25,
-    "stock": 85,
-    "stockValue": 127.5,
-    "period": {
-      "start": null,
-      "end": null
-    }
-  }
-]
-```
-
-When `format=csv`, a CSV export is generated using PapaParse with equivalent fields and additional `periodStart`/`periodEnd` columns.
-
-## Seeding
-
-[`prisma/seed.ts`](prisma/seed.ts) inserts six sample products with 20 purchases and 20 sales spread across recent months. The seed command can be rerun safely; it truncates existing data before inserting new rows.
-
-## Scripts
-
-- `npm run dev`: Start Next.js in development mode.
-- `npm run build`: Build the production bundle.
-- `npm run start`: Run the production server.
-- `npm run db:migrate`: Run pending Prisma migrations.
-- `npm run db:seed`: Seed the database using Prisma.
-
-## License
-
-MIT
+Feel free to extend the structure with `components/` and `lib/` directories as your domain grows.
