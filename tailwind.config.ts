@@ -1,16 +1,25 @@
 import type { Config } from "tailwindcss";
-import animate from "tailwindcss-animate";
 
 const config: Config = {
   content: [
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./lib/**/*.{js,ts,jsx,tsx,mdx}"
+    "./app/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}"
   ],
   theme: {
-    extend: {}
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: "#1f2937",
+          foreground: "#f9fafb"
+        },
+        accent: {
+          DEFAULT: "#2563eb",
+          foreground: "#f8fafc"
+        }
+      }
+    }
   },
-  plugins: [animate]
+  plugins: []
 };
 
 export default config;

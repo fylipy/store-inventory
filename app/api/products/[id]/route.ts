@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
-import { createProduct, listProducts } from "@/lib/data-store";
+import { updateProduct } from "@/lib/data-store";
 
-export async function GET() {
-  return NextResponse.json(listProducts());
-}
-
-export async function POST(request: Request) {
+export async function PUT(request: Request, { params }: { params: { id: string } }) {
   const payload = await request.json();
   const errors: Record<string, string> = {};
 
@@ -24,16 +20,16 @@ export async function POST(request: Request) {
   }
 
   try {
-    const product = createProduct({
+    const product = updateProduct(params.id, {
       code: payload.code,
       description: payload.description,
       price: Number(payload.price)
     });
-    return NextResponse.json(product, { status: 201 });
+    return NextResponse.json(product);
   } catch (error) {
     return NextResponse.json(
       {
-        errors: { general: error instanceof Error ? error.message : "Unable to create product" }
+        errors: { general: error instanceof Error ? error.message : "Unable to update product" }
       },
       { status: 400 }
     );
